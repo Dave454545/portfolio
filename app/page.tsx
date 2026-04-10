@@ -8,14 +8,14 @@ import {
 } from 'lucide-react';
 
 // --- CUSTOM BRAND ICONS ---
-const GithubIcon = ({ size = 24, className = "" }) => (
+const GithubIcon = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.02c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A4.8 4.8 0 0 0 9 18v4"></path>
     <path d="M9 18c-4.51 2-5-2-7-2"></path>
   </svg>
 );
 
-const LinkedinIcon = ({ size = 24, className = "" }) => (
+const LinkedinIcon = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
     <rect width="4" height="12" x="2" y="9"></rect>
@@ -103,7 +103,7 @@ const THEMES = {
     alert: '#ff003c',
     dark: '#050510',
     particleFill: 'rgba(0, 119, 255, 0.3)',
-    particleStroke: (dist) => `rgba(0, 240, 255, ${0.8 - dist/150})`,
+    particleStroke: (dist: number) => `rgba(0, 240, 255, ${0.8 - dist/150})`,
     particleSpeed: 1,
     mapName: "BLUE_LINK // SECURE_NET"
   },
@@ -113,7 +113,7 @@ const THEMES = {
     alert: '#00f0ff',
     dark: '#140005',
     particleFill: 'rgba(255, 0, 60, 0.4)',
-    particleStroke: (dist) => `rgba(255, 0, 60, ${1 - dist/200})`,
+    particleStroke: (dist: number) => `rgba(255, 0, 60, ${1 - dist/200})`,
     particleSpeed: 3.5,
     mapName: "RED_TEAM_BREACH // THREAT_DETECTED"
   },
@@ -123,7 +123,7 @@ const THEMES = {
     alert: '#ff003c',
     dark: '#020d05',
     particleFill: 'rgba(0, 255, 100, 0.3)',
-    particleStroke: (dist) => `rgba(0, 255, 100, ${0.8 - dist/150})`,
+    particleStroke: (dist: number) => `rgba(0, 255, 100, ${0.8 - dist/150})`,
     particleSpeed: 0.5,
     mapName: "SYSTEM_CORE // ROOT_ACCESS"
   }
@@ -325,8 +325,8 @@ const customStyles = `
 `;
 
 // --- BOOT SEQUENCE COMPONENT ---
-const BootScreen = ({ onComplete }) => {
-  const [lines, setLines] = useState([]);
+const BootScreen = ({ onComplete }: { onComplete: () => void }) => {
+  const [lines, setLines] = useState<string[]>([]);
   const bootSequence = [
     "INIT SYSTEM // KERNEL v9.4.2",
     "LOADING SECURE PROTOCOLS...",
@@ -365,8 +365,8 @@ const BootScreen = ({ onComplete }) => {
 };
 
 // --- DYNAMIC BACKGROUND CANVAS COMPONENT ---
-const NetworkBackground = ({ themeConfig }) => {
-  const canvasRef = useRef(null);
+const NetworkBackground = ({ themeConfig }: { themeConfig: any }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const themeRef = useRef(themeConfig);
 
   useEffect(() => {
@@ -375,9 +375,13 @@ const NetworkBackground = ({ themeConfig }) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
-    let animationFrameId;
-    let particles = [];
+    if (!ctx) return;
+    
+    let animationFrameId: number;
+    let particles: Particle[] = [];
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -387,31 +391,37 @@ const NetworkBackground = ({ themeConfig }) => {
     resize();
 
     class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * canvas!.width;
+        this.y = Math.random() * canvas!.height;
         this.vx = (Math.random() - 0.5) * 1.5;
         this.vy = (Math.random() - 0.5) * 1.5;
         this.radius = Math.random() * 2 + 1;
       }
-      draw(theme) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = theme.particleFill;
-        ctx.fill();
+      draw(theme: any) {
+        ctx!.beginPath();
+        ctx!.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx!.fillStyle = theme.particleFill;
+        ctx!.fill();
       }
-      update(theme) {
+      update(theme: any) {
         this.x += this.vx * theme.particleSpeed;
         this.y += this.vy * theme.particleSpeed;
-        if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
-        if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
+        if (this.x < 0 || this.x > canvas!.width) this.vx = -this.vx;
+        if (this.y < 0 || this.y > canvas!.height) this.vy = -this.vy;
       }
     }
 
     for (let i = 0; i < 60; i++) particles.push(new Particle()); // Reduced for better mobile perf
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
       const currentTheme = themeRef.current;
       
       for (let i = 0; i < particles.length; i++) {
@@ -424,12 +434,12 @@ const NetworkBackground = ({ themeConfig }) => {
           const dist = Math.sqrt(dx * dx + dy * dy);
           
           if (dist < 150) {
-            ctx.beginPath();
-            ctx.strokeStyle = currentTheme.particleStroke(dist);
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
+            ctx!.beginPath();
+            ctx!.strokeStyle = currentTheme.particleStroke(dist);
+            ctx!.lineWidth = 0.5;
+            ctx!.moveTo(particles[i].x, particles[i].y);
+            ctx!.lineTo(particles[j].x, particles[j].y);
+            ctx!.stroke();
           }
         }
       }
@@ -455,10 +465,10 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('about');
   
   // DYNAMIC MAP / THEME SYSTEM
-  const [currentThemeId, setCurrentThemeId] = useState('blue');
-  const [mapAlert, setMapAlert] = useState(null);
+  const [currentThemeId, setCurrentThemeId] = useState<'blue' | 'red' | 'green'>('blue');
+  const [mapAlert, setMapAlert] = useState<string | null>(null);
 
-  const triggerMapChange = (newThemeId, message) => {
+  const triggerMapChange = (newThemeId: 'blue' | 'red' | 'green', message: string) => {
     if (currentThemeId === newThemeId) return;
     setCurrentThemeId(newThemeId);
     setMapAlert(message);
@@ -466,7 +476,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: any) => {
       setMousePos({ x: e.clientX, y: e.clientY });
       setTimeout(() => setDelayedMousePos({ x: e.clientX, y: e.clientY }), 50);
     };
@@ -480,8 +490,8 @@ export default function App() {
       window.addEventListener('mouseup', handleMouseUp);
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+    const observer = new IntersectionObserver((entries: any[]) => {
+      entries.forEach((entry: any) => {
         if(entry.isIntersecting) setActiveSection(entry.target.id);
       });
     }, { threshold: 0.3 });
@@ -509,7 +519,7 @@ export default function App() {
         '--alert': theme.alert,
         '--dark': theme.dark,
         backgroundColor: 'var(--dark)'
-      }}
+      } as React.CSSProperties}
     >
       <style>{customStyles}</style>
       
